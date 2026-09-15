@@ -43,23 +43,27 @@
 | Система бронирования | Система карточного доступа | Передаёт разрешение на вход в лабораторию на время брони |
 
 ```plantuml
-@startuml C4_Context_Situation1
-!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
-LAYOUT_WITH_LEGEND()
+@startuml Situation1
+skinparam backgroundColor transparent
+skinparam componentStyle rectangle
 
-Person(user, "Пользователь", "Студент / сотрудник, бронирующий лабораторию")
-System(focus, "Система бронирования лабораторий", "Показывает доступное время, принимает и подтверждает брони")
-System_Ext(uis, "Университетская информационная система", "Данные о студентах и сотрудниках")
-System_Ext(schedule, "Система расписания занятий", "Обязательные занятия в лабораториях")
-System_Ext(mail, "Почтовый сервис", "Отправка писем")
-System_Ext(access, "Система карточного доступа", "Физический доступ в лабораторию")
+actor "Пользователь\n(студент/сотрудник)" as User
 
-Rel(user, focus, "Смотрит доступное время, подаёт заявку")
-Rel(focus, user, "Показывает статус и результат брони")
-Rel(focus, uis, "Проверяет данные пользователя")
-Rel(focus, schedule, "Получает обязательные занятия для проверки конфликтов")
-Rel(focus, mail, "Инициирует письмо с результатом брони")
-Rel(focus, access, "Передаёт разрешение на доступ")
+rectangle "Граница системы" {
+  component "Система бронирования\nлабораторий" as Focus
+}
+
+component "Университетская\nинформационная система" as UIS
+component "Система расписания\nзанятий" as Schedule
+component "Почтовый сервис" as Mail
+component "Система карточного\nдоступа" as Access
+
+User --> Focus : смотрит слоты,\nподаёт заявку
+Focus --> User : статус и результат брони
+Focus --> UIS : проверяет данные пользователя
+Focus --> Schedule : получает обязательные занятия
+Focus --> Mail : инициирует письмо с результатом
+Focus --> Access : передаёт разрешение на доступ
 @enduml
 ```
 
@@ -91,23 +95,27 @@ Rel(focus, access, "Передаёт разрешение на доступ")
 | Сервис SMS-рассылок | Пациент | Доставляет SMS |
 
 ```plantuml
-@startuml C4_Context_Situation2
-!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
-LAYOUT_WITH_LEGEND()
+@startuml Situation2
+skinparam backgroundColor transparent
+skinparam componentStyle rectangle
 
-Person(patient, "Пациент", "Ищет врача и записывается на приём")
-System(focus, "Сервис онлайн-записи к врачу", "Поиск слота, запись, оплата, напоминания")
-System_Ext(mis, "Медицинская информационная система клиники", "Расписание врача, карта записей")
-System_Ext(pay, "Внешний платёжный сервис", "Приём онлайн-оплаты")
-System_Ext(sms, "Сервис SMS-рассылок", "Доставка подтверждений и напоминаний")
+actor "Пациент" as Patient
 
-Rel(patient, focus, "Ищет врача, выбирает слот, записывается")
-Rel(focus, mis, "Запрашивает доступное время врача")
-Rel(focus, mis, "Передаёт данные о новой записи")
-Rel(focus, pay, "Инициирует оплату приёма")
-Rel(pay, focus, "Подтверждает статус оплаты")
-Rel(focus, sms, "Инициирует подтверждение и напоминание")
-Rel(sms, patient, "Доставляет SMS")
+rectangle "Граница системы" {
+  component "Сервис онлайн-записи\nк врачу" as Focus
+}
+
+component "Медицинская информационная\nсистема клиники" as MIS
+component "Внешний платёжный\nсервис" as Pay
+component "Сервис SMS-рассылок" as SMS
+
+Patient --> Focus : ищет врача, выбирает\nслот, записывается
+Focus --> MIS : запрашивает доступное время врача
+Focus --> MIS : передаёт данные о новой записи
+Focus --> Pay : инициирует оплату приёма
+Pay --> Focus : подтверждает статус оплаты
+Focus --> SMS : инициирует подтверждение\nи напоминание
+SMS --> Patient : доставляет SMS
 @enduml
 ```
 
@@ -144,29 +152,32 @@ Rel(sms, patient, "Доставляет SMS")
 | Система заявок | Корп. система единого входа | Аутентифицирует пользователей системы |
 
 ```plantuml
-@startuml C4_Context_Situation3
-!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
-LAYOUT_WITH_LEGEND()
+@startuml Situation3
+skinparam backgroundColor transparent
+skinparam componentStyle rectangle
 
-Person(employee, "Сотрудник", "Создаёт заявку на оборудование")
-Person(manager, "Руководитель", "Согласовывает или отклоняет заявку")
-Person(itstaff, "Сотрудник IT-службы", "Выдаёт согласованное оборудование")
+actor "Сотрудник" as Employee
+actor "Руководитель" as Manager
+actor "Сотрудник IT-службы" as ITStaff
 
-System(focus, "Система заявок на оборудование", "Создание, согласование и отслеживание заявок")
+rectangle "Граница системы" {
+  component "Система заявок\nна оборудование" as Focus
+}
 
-System_Ext(hr, "Кадровая информационная система", "Оргструктура и данные сотрудников")
-System_Ext(warehouse, "Складская учётная система", "Наличие оборудования")
-System_Ext(sso, "Корп. система единого входа", "Аутентификация")
-System_Ext(mail, "Корпоративная почта", "Уведомления")
+component "Кадровая\nинформационная система" as HR
+component "Складская учётная\nсистема" as Warehouse
+component "Корп. система\nединого входа (SSO)" as SSO
+component "Корпоративная почта" as Mail
 
-Rel(employee, focus, "Создаёт заявку, смотрит статус")
-Rel(focus, hr, "Определяет руководителя сотрудника")
-Rel(focus, manager, "Направляет заявку на согласование")
-Rel(manager, focus, "Согласовывает / отклоняет")
-Rel(focus, warehouse, "Запрашивает наличие оборудования")
-Rel(focus, itstaff, "Передаёт согласованную заявку")
-Rel(focus, mail, "Уведомляет сотрудника о решении")
-Rel(focus, sso, "Аутентифицирует пользователей")
+Employee --> Focus : создаёт заявку, смотрит статус
+Focus --> HR : определяет руководителя сотрудника
+Focus --> Manager : направляет заявку на согласование
+Manager --> Focus : согласовывает / отклоняет
+Focus --> Warehouse : запрашивает наличие оборудования
+Warehouse --> Focus : возвращает данные о доступности
+Focus --> ITStaff : передаёт согласованную заявку
+Focus --> Mail : уведомляет сотрудника о решении
+Focus --> SSO : аутентифицирует пользователей
 @enduml
 ```
 
@@ -199,27 +210,29 @@ Rel(focus, sso, "Аутентифицирует пользователей")
 | Внешний сервис SMS-уведомлений | Покупатель | Доставляет SMS о поступлении заказа |
 
 ```plantuml
-@startuml C4_Context_Situation4
-!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
-LAYOUT_WITH_LEGEND()
+@startuml Situation4
+skinparam backgroundColor transparent
+skinparam componentStyle rectangle
 
-Person(staff, "Сотрудник пункта выдачи", "Ищет и выдаёт заказы")
-Person(customer, "Покупатель", "Получает заказ; с интерфейсом системы не работает")
+actor "Сотрудник пункта\nвыдачи" as Staff
+actor "Покупатель" as Customer
 
-System(focus, "Система выдачи заказов", "Учёт заказов и фиксация выдачи в пункте")
+rectangle "Граница системы" {
+  component "Система выдачи\nзаказов" as Focus
+}
 
-System_Ext(shop, "Основной интернет-магазин", "Данные о заказах и покупателях")
-System_Ext(warehouse, "Система склада", "Местонахождение товара в пункте")
-System_Ext(courier, "Система курьерской службы", "Доставка заказов в пункт")
-System_Ext(sms, "Внешний сервис SMS-уведомлений", "Уведомления покупателю")
+component "Основной\nинтернет-магазин" as Shop
+component "Система склада" as Warehouse
+component "Система курьерской\nслужбы" as Courier
+component "Внешний сервис\nSMS-уведомлений" as SMS
 
-Rel(staff, focus, "Ищет заказ, фиксирует факт выдачи")
-Rel(courier, focus, "Сообщает о поступлении заказа в пункт")
-Rel(shop, focus, "Передаёт данные заказа")
-Rel(focus, warehouse, "Уточняет местонахождение товара")
-Rel(focus, shop, "Передаёт факт выдачи")
-Rel(focus, sms, "Инициирует уведомление о поступлении")
-Rel(sms, customer, "Доставляет SMS")
+Staff --> Focus : ищет заказ, фиксирует выдачу
+Courier --> Focus : сообщает о поступлении заказа
+Shop --> Focus : передаёт данные заказа
+Focus --> Warehouse : уточняет местонахождение товара
+Focus --> Shop : передаёт факт выдачи
+Focus --> SMS : инициирует уведомление
+SMS --> Customer : доставляет SMS
 @enduml
 ```
 
